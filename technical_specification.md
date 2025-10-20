@@ -68,7 +68,7 @@ App.svelte (Root)
 ```
 EffortList.svelte
 ├── EffortCard.svelte (for each effort)
-│   ├── EffortProgress.svelte
+│   ├── EffortProgress.svelte (shared component)
 │   └── EffortActions.svelte
 └── AddEffortButton.svelte
 ```
@@ -83,6 +83,7 @@ EffortDetail.svelte
 │   ├── AmountInput.svelte
 │   ├── CategorySelector.svelte
 │   └── DescriptionInput.svelte
+├── EffortProgress.svelte (shared component)
 └── EffortSummary.svelte
 ```
 
@@ -93,6 +94,7 @@ CategorySelector.svelte
 ├── CategoryBadge.svelte
 └── CategoryPicker.svelte
 
+EffortProgress.svelte (reusable progress bar component)
 Modal.svelte (reusable modal component)
 Toast.svelte (notification component)
 ```
@@ -269,10 +271,11 @@ async function deleteEntry(id: number) {
 
 The progress bar in the effort detail view is implemented as a segmented bar that shows the contribution of each savings category:
 
-- **Segmented Design**: Each category's savings contribution is represented by a colored segment proportional to its amount relative to the target
+- **Segmented Design**: Each category's savings contribution is represented by a colored segment proportional to its amount relative to the total savings
+- **Progress Towards Target**: If a target amount is set, the bar fills up to the percentage of progress towards the target; otherwise, the bar is fully filled with category segments
 - **Color Coding**: Segments use the same colors as the category badges for consistency
 - **Category Legend**: Below the progress bar, a legend shows each category with its color indicator, name, and total amount
-- **Tooltip Information**: Hovering over segments shows detailed information including category name, amount, and percentage contribution
+- **Tooltip Information**: Hovering over segments shows detailed information including category name, amount, and percentage contribution (relative to total savings)
 - **Responsive**: The segmented bar maintains visual clarity across different screen sizes
 
 ## Development Setup

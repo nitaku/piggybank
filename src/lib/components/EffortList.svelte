@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { effortsStore, entriesStore } from '$lib/stores.svelte';
+	import { effortsStore, entriesStore, categoriesStore } from '$lib/stores.svelte';
 	import type { SavingEffort } from '$lib/types';
+	import EffortProgress from './EffortProgress.svelte';
 
 	let showCreateModal = $state(false);
 	let newEffortName = $state('');
@@ -85,11 +86,6 @@
 		}
 	};
 
-	const getTotalSaved = (effortId: number): number => {
-		return entriesStore.entries
-			.filter(entry => entry.effortId === effortId)
-			.reduce((total, entry) => total + entry.amount, 0);
-	};
 </script>
 
 <div class="space-y-4">
@@ -121,15 +117,7 @@
 						<div class="flex justify-between items-start">
 							<div class="flex-1">
 								<h3 class="card-title text-lg">{effort.name}</h3>
-								{#if effort.targetAmount}
-									<div class="text-sm text-base-content/70">
-										Saved: ${getTotalSaved(effort.id).toLocaleString()}/${effort.targetAmount.toLocaleString()}
-									</div>
-								{:else}
-									<div class="text-sm text-base-content/70">
-										Saved: ${getTotalSaved(effort.id).toLocaleString()}
-									</div>
-								{/if}
+								<EffortProgress effortId={effort.id} showTotal={true} />
 							</div>
 							<button
 								class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content"

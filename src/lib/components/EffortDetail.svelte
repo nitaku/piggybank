@@ -2,6 +2,7 @@
 	import { effortsStore, entriesStore, categoriesStore } from '$lib/stores.svelte';
 	import type { SavingsEntry } from '$lib/types';
 	import { Utensils, Plane, DollarSign, Tag } from 'lucide-svelte';
+	import EffortProgress from './EffortProgress.svelte';
 
 	let newEntryAmount = $state('');
 	let newEntryCategory = $state('');
@@ -75,38 +76,6 @@
 		}
 	};
 
-	const getTotalSavings = (): number => {
-		return entriesStore.filteredEntries.reduce((total, entry) => total + entry.amount, 0);
-	};
-
-	const getProgressPercentage = (): number => {
-		if (!effortsStore.currentEffort?.targetAmount) return 0;
-		const total = getTotalSavings();
-		return Math.min((total / effortsStore.currentEffort.targetAmount) * 100, 100);
-	};
-
-	const getSavingsByCategory = (): { category: string; amount: number; color: string; percentage: number }[] => {
-		const categoryTotals: { [key: string]: { amount: number; color: string } } = {};
-
-		// Calculate total savings per category
-		entriesStore.filteredEntries.forEach(entry => {
-			if (!categoryTotals[entry.category]) {
-				categoryTotals[entry.category] = { amount: 0, color: entry.categoryColor };
-			}
-			categoryTotals[entry.category].amount += entry.amount;
-		});
-
-		const totalSavings = getTotalSavings();
-		const targetAmount = effortsStore.currentEffort?.targetAmount || totalSavings;
-
-		// Convert to array with percentages relative to target
-		return Object.entries(categoryTotals).map(([category, data]) => ({
-			category,
-			amount: data.amount,
-			color: data.color,
-			percentage: totalSavings > 0 ? (data.amount / targetAmount) * 100 : 0
-		})).filter(item => item.percentage > 0);
-	};
 </script>
 
 <div class="space-y-4">
@@ -124,39 +93,11 @@
 		</div>
 	</div>
 
-	{#if effortsStore.currentEffort?.targetAmount}
-		<div class="card bg-base-100 shadow-md">
-			<div class="card-body p-4">
-				<div class="flex justify-between items-center mb-2">
-					<span class="text-sm font-medium">Progress</span>
-					<span class="text-sm">${getTotalSavings().toLocaleString()} / ${effortsStore.currentEffort.targetAmount.toLocaleString()}</span>
-				</div>
-				<div class="w-full bg-base-200 rounded-full h-3 overflow-hidden">
-					{#each getSavingsByCategory() as categoryData}
-						<div
-							class="h-full inline-block"
-							style="width: {categoryData.percentage}%; background-color: {categoryData.color};"
-							title="{categoryData.category}: ${categoryData.amount.toLocaleString()} ({Math.round(categoryData.percentage)}%)"
-						></div>
-					{/each}
-				</div>
-				<div class="text-xs text-base-content/70 mt-1">
-					{Math.round(getProgressPercentage())}% complete
-				</div>
-				{#if getSavingsByCategory().length > 0}
-					<div class="flex flex-wrap gap-2 mt-2">
-						{#each getSavingsByCategory() as categoryData}
-							<div class="flex items-center gap-1 text-xs">
-								<div class="w-2 h-2 rounded-full" style="background-color: {categoryData.color};"></div>
-								<span class="capitalize">{categoryData.category}</span>
-								<span class="text-base-content/70">${categoryData.amount.toLocaleString()}</span>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
+	<div class="card bg-base-100 shadow-md">
+		<div class="card-body p-4">
+			<EffortProgress effortId={effortsStore.currentEffort!.id} showTotal={true} />
 		</div>
-	{/if}
+	</div>
 
 	<div class="card bg-base-100 shadow-md">
 		<div class="card-body p-4">
