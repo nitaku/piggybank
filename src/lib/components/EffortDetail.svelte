@@ -3,7 +3,7 @@
 	import type { SavingsEntry } from '$lib/types';
 	import { Utensils, Plane, DollarSign, Tag, Gamepad2, Fuel, ShoppingCart, FileText, Heart, TrendingUp } from 'lucide-svelte';
 	import EffortProgress from './EffortProgress.svelte';
-	import { formatCurrency } from '$lib/currency';
+	import { formatCurrency, CURRENCY_CONFIG } from '$lib/currency';
 
 	let newEntryAmount = $state('');
 	let newEntryCategory = $state('');
@@ -125,16 +125,20 @@
 					{#if formErrors.amount}
 						<div class="text-error text-sm mb-1">{formErrors.amount}</div>
 					{/if}
-					<input
-						id="entry-amount"
-						type="number"
-						step="0.01"
-						min="0.01"
-						placeholder="0.00"
-						class="input input-bordered w-full {formErrors.amount ? 'input-error' : ''}"
-						bind:value={newEntryAmount}
-						required
-					/>
+					<div class="flex items-baseline justify-center">
+						<span class="text-base-content/60 text-xl font-medium opacity-0 mr-2">€</span>
+						<input
+							id="entry-amount"
+							type="number"
+							step="0.01"
+							min="0.01"
+							class="w-32 pb-2 bg-transparent border-0 border-b-2 border-base-content/20 focus:border-primary focus:outline-none text-xl font-medium text-center {formErrors.amount ? 'border-error' : ''}"
+							style="-webkit-appearance: none; -moz-appearance: textfield;"
+							bind:value={newEntryAmount}
+							required
+						/>
+						<span class="text-base-content/60 text-xl font-medium ml-2">{CURRENCY_CONFIG.symbol}</span>
+					</div>
 				</div>
 
 				<div class="form-control">
