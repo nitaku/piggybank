@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { effortsStore } from '$lib/stores.svelte';
+	import { effortsStore, entriesStore } from '$lib/stores.svelte';
 	import type { SavingEffort } from '$lib/types';
 
 	let showCreateModal = $state(false);
@@ -84,6 +84,12 @@
 			// Could show user-friendly error message
 		}
 	};
+
+	const getTotalSaved = (effortId: number): number => {
+		return entriesStore.entries
+			.filter(entry => entry.effortId === effortId)
+			.reduce((total, entry) => total + entry.amount, 0);
+	};
 </script>
 
 <div class="space-y-4">
@@ -117,7 +123,11 @@
 								<h3 class="card-title text-lg">{effort.name}</h3>
 								{#if effort.targetAmount}
 									<div class="text-sm text-base-content/70">
-										Target: ${effort.targetAmount.toLocaleString()}
+										Saved: ${getTotalSaved(effort.id).toLocaleString()}/${effort.targetAmount.toLocaleString()}
+									</div>
+								{:else}
+									<div class="text-sm text-base-content/70">
+										Saved: ${getTotalSaved(effort.id).toLocaleString()}
 									</div>
 								{/if}
 								<div class="text-xs text-base-content/50">
