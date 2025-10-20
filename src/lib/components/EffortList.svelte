@@ -130,9 +130,6 @@
 										Saved: ${getTotalSaved(effort.id).toLocaleString()}
 									</div>
 								{/if}
-								<div class="text-xs text-base-content/50">
-									Created: {effort.createdAt.toLocaleDateString()}
-								</div>
 							</div>
 							<button
 								class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content"

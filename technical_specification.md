@@ -226,7 +226,7 @@ async function deleteEntry(id: number) {
 - **Buttons**: Primary actions (add, edit, delete)
 - **Modals**: Forms for creating/editing
 - **Badges**: Category indicators with colors
-- **Progress bars**: Savings progress visualization
+- **Progress bars**: Segmented savings progress visualization showing category contributions with color-coded segments
 
 ### Color Scheme
 
@@ -264,6 +264,16 @@ async function deleteEntry(id: number) {
 - Advanced analytics and reporting
 - Custom category creation
 - Recurring savings entries
+
+## Progress Bar Visualization
+
+The progress bar in the effort detail view is implemented as a segmented bar that shows the contribution of each savings category:
+
+- **Segmented Design**: Each category's savings contribution is represented by a colored segment proportional to its amount relative to the target
+- **Color Coding**: Segments use the same colors as the category badges for consistency
+- **Category Legend**: Below the progress bar, a legend shows each category with its color indicator, name, and total amount
+- **Tooltip Information**: Hovering over segments shows detailed information including category name, amount, and percentage contribution
+- **Responsive**: The segmented bar maintains visual clarity across different screen sizes
 
 ## Development Setup
 

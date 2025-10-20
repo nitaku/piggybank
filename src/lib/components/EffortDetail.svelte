@@ -16,7 +16,7 @@
 		formErrors = {};
 		let isValid = true;
 
-		if (!newEntryAmount.trim()) {
+		if (!newEntryAmount.toString().trim()) {
 			formErrors.amount = 'Amount is required';
 			isValid = false;
 		} else {
@@ -84,6 +84,29 @@
 		const total = getTotalSavings();
 		return Math.min((total / effortsStore.currentEffort.targetAmount) * 100, 100);
 	};
+
+	const getSavingsByCategory = (): { category: string; amount: number; color: string; percentage: number }[] => {
+		const categoryTotals: { [key: string]: { amount: number; color: string } } = {};
+
+		// Calculate total savings per category
+		entriesStore.filteredEntries.forEach(entry => {
+			if (!categoryTotals[entry.category]) {
+				categoryTotals[entry.category] = { amount: 0, color: entry.categoryColor };
+			}
+			categoryTotals[entry.category].amount += entry.amount;
+		});
+
+		const totalSavings = getTotalSavings();
+		const targetAmount = effortsStore.currentEffort?.targetAmount || totalSavings;
+
+		// Convert to array with percentages relative to target
+		return Object.entries(categoryTotals).map(([category, data]) => ({
+			category,
+			amount: data.amount,
+			color: data.color,
+			percentage: totalSavings > 0 ? (data.amount / targetAmount) * 100 : 0
+		})).filter(item => item.percentage > 0);
+	};
 </script>
 
 <div class="space-y-4">
@@ -93,7 +116,12 @@
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
 			</svg>
 		</button>
-		<h1 class="text-2xl font-bold">{effortsStore.currentEffort?.name}</h1>
+		<div>
+			<h1 class="text-2xl font-bold">{effortsStore.currentEffort?.name}</h1>
+			<div class="text-sm text-base-content/70">
+				Created: {effortsStore.currentEffort?.createdAt.toLocaleDateString()}
+			</div>
+		</div>
 	</div>
 
 	{#if effortsStore.currentEffort?.targetAmount}
@@ -103,10 +131,29 @@
 					<span class="text-sm font-medium">Progress</span>
 					<span class="text-sm">${getTotalSavings().toLocaleString()} / ${effortsStore.currentEffort.targetAmount.toLocaleString()}</span>
 				</div>
-				<progress class="progress progress-primary" value={getProgressPercentage()} max="100"></progress>
+				<div class="w-full bg-base-200 rounded-full h-3 overflow-hidden">
+					{#each getSavingsByCategory() as categoryData}
+						<div
+							class="h-full inline-block"
+							style="width: {categoryData.percentage}%; background-color: {categoryData.color};"
+							title="{categoryData.category}: ${categoryData.amount.toLocaleString()} ({Math.round(categoryData.percentage)}%)"
+						></div>
+					{/each}
+				</div>
 				<div class="text-xs text-base-content/70 mt-1">
 					{Math.round(getProgressPercentage())}% complete
 				</div>
+				{#if getSavingsByCategory().length > 0}
+					<div class="flex flex-wrap gap-2 mt-2">
+						{#each getSavingsByCategory() as categoryData}
+							<div class="flex items-center gap-1 text-xs">
+								<div class="w-2 h-2 rounded-full" style="background-color: {categoryData.color};"></div>
+								<span class="capitalize">{categoryData.category}</span>
+								<span class="text-base-content/70">${categoryData.amount.toLocaleString()}</span>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
 	{/if}
