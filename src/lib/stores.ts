@@ -2,9 +2,9 @@ import { dexieService } from './dexie-service';
 import type { SavingEffort, SavingsEntry, Category } from './types';
 
 // Reactive state using Svelte 5 runes - only initialize in browser
-let efforts: SavingEffort[] = [];
-let entries: SavingsEntry[] = [];
-let currentEffort: SavingEffort | null = null;
+let efforts: SavingEffort[] = $state([]);
+let entries: SavingsEntry[] = $state([]);
+let currentEffort: SavingEffort | null = $state(null);
 const categories: Category[] = [
 	{ id: 'food', color: '#FF6B6B', icon: 'utensils' },
 	{ id: 'travel', color: '#4ECDC4', icon: 'plane' },
@@ -36,6 +36,7 @@ export const effortsStore = {
 			const id = await dexieService.createEffort(effortData);
 			const newEffort = { ...effortData, id } as SavingEffort;
 			efforts.push(newEffort);
+			efforts = [...efforts]; // Trigger reactivity
 		} catch (error) {
 			console.error('Failed to create effort:', error);
 			throw error;
@@ -85,6 +86,7 @@ export const entriesStore = {
 			const id = await dexieService.createEntry(entryData);
 			const newEntry = { ...entryData, id } as SavingsEntry;
 			entries.push(newEntry);
+			entries = [...entries]; // Trigger reactivity
 		} catch (error) {
 			console.error('Failed to create entry:', error);
 			throw error;
