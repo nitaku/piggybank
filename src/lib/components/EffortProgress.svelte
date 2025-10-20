@@ -49,8 +49,7 @@
 </script>
 
 {#if showTotal}
-	<div class="flex justify-between items-center mb-2">
-		<span class="text-sm font-medium">Progress</span>
+	<div class="flex justify-center items-center mb-2">
 		<span class="text-sm">
 			${getTotalSaved().toLocaleString()}
 			{#if effortsStore.efforts.find(e => e.id === effortId)?.targetAmount}
@@ -76,8 +75,6 @@
 <div class="text-xs text-base-content/70 mt-1">
 	{#if effortsStore.efforts.find(e => e.id === effortId)?.targetAmount}
 		{Math.round(getProgressPercentage())}% complete
-	{:else}
-		Total saved
 	{/if}
 </div>
 {#if getSavingsByCategory().length > 0}
