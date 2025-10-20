@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui';
+
+/* Mobile-specific customizations for touch-friendly interactions and responsive design */
+@media (max-width: 640px) {
+  /* Ensure touch targets are at least 44px for better accessibility */
+  .btn {
+    min-height: 44px;
+  }
+
+  /* Prevent zoom on iOS when focusing inputs */
+  .input, .textarea {
+    font-size: 16px;
+  }
+
+  /* Adjust spacing for cleaner mobile layout */
+  .card-body {
+    padding: 0.75rem; /* Reduce padding slightly on mobile for more content space */
+  }
+
+  /* Ensure modal content fits well on small screens */
+  .modal-box {
+    width: 95vw;
+    max-width: none;
+  }
+}
+
+/* General mobile-first improvements */
+.btn {
+  min-height: 44px; /* Ensure all buttons are touch-friendly */
+}
+
+.input, .textarea {
+  font-size: 16px; /* Prevent zoom on focus */
+}
+
+/* Ensure progress bars are properly sized on mobile */
+.progress {
+  height: 0.5rem;
+}
