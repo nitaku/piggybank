@@ -20,6 +20,9 @@ function getFilteredEntries() {
 // Store actions with synchronization
 export const effortsStore = {
 	get efforts() { return efforts; },
+	get sortedEfforts() {
+		return efforts.toSorted((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+	},
 	get currentEffort() { return currentEffort; },
 
 	async loadEfforts() {
@@ -87,6 +90,9 @@ export const entriesStore = {
 			const newEntry = { ...entryData, id } as SavingsEntry;
 			entries.push(newEntry);
 			entries = [...entries]; // Trigger reactivity
+
+			// Update the associated effort's updatedAt timestamp
+			await effortsStore.updateEffort(entryData.effortId, {});
 		} catch (error) {
 			console.error('Failed to create entry:', error);
 			throw error;

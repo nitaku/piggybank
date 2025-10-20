@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { initializeStores, effortsStore } from '$lib/stores';
+	import { initializeStores, effortsStore } from '$lib/stores.svelte';
 	import EffortList from './EffortList.svelte';
 	import EffortDetail from './EffortDetail.svelte';
 

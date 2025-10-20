@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { effortsStore, entriesStore, categoriesStore } from '$lib/stores';
+	import { effortsStore, entriesStore, categoriesStore } from '$lib/stores.svelte';
 	import type { SavingsEntry } from '$lib/types';
 	import { Utensils, Plane, DollarSign, Tag } from 'lucide-svelte';
 

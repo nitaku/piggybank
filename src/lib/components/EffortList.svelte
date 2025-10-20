@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { effortsStore } from '$lib/stores';
+	import { effortsStore } from '$lib/stores.svelte';
 	import type { SavingEffort } from '$lib/types';
 
 	let showCreateModal = $state(false);
 	let newEffortName = $state('');
 	let newEffortTarget = $state('');
 	let formErrors = $state<{ name?: string; target?: string }>({});
+	let showDeleteModal = $state(false);
+	let effortToDelete = $state<SavingEffort | null>(null);
 
 	const selectEffort = (effort: SavingEffort) => {
 		effortsStore.setCurrentEffort(effort);
@@ -60,6 +62,28 @@
 			// Could show user-friendly error message
 		}
 	};
+
+	const openDeleteModal = (effort: SavingEffort) => {
+		effortToDelete = effort;
+		showDeleteModal = true;
+	};
+
+	const closeDeleteModal = () => {
+		showDeleteModal = false;
+		effortToDelete = null;
+	};
+
+	const deleteEffort = async () => {
+		if (!effortToDelete) return;
+
+		try {
+			await effortsStore.deleteEffort(effortToDelete.id);
+			closeDeleteModal();
+		} catch (error) {
+			console.error('Failed to delete effort:', error);
+			// Could show user-friendly error message
+		}
+	};
 </script>
 
 <div class="space-y-4">
@@ -73,7 +97,7 @@
 		</button>
 	</div>
 
-	{#if effortsStore.efforts.length === 0}
+	{#if effortsStore.sortedEfforts.length === 0}
 		<div class="hero min-h-[50vh]">
 			<div class="hero-content text-center">
 				<div class="max-w-md">
@@ -85,21 +109,51 @@
 		</div>
 	{:else}
 		<div class="grid gap-4">
-			{#each effortsStore.efforts as effort (effort.id)}
+			{#each effortsStore.sortedEfforts as effort (effort.id)}
 				<div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick={() => selectEffort(effort)} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectEffort(effort); } }}>
 					<div class="card-body p-4">
-						<h3 class="card-title text-lg">{effort.name}</h3>
-						{#if effort.targetAmount}
-							<div class="text-sm text-base-content/70">
-								Target: ${effort.targetAmount.toLocaleString()}
+						<div class="flex justify-between items-start">
+							<div class="flex-1">
+								<h3 class="card-title text-lg">{effort.name}</h3>
+								{#if effort.targetAmount}
+									<div class="text-sm text-base-content/70">
+										Target: ${effort.targetAmount.toLocaleString()}
+									</div>
+								{/if}
+								<div class="text-xs text-base-content/50">
+									Created: {effort.createdAt.toLocaleDateString()}
+								</div>
 							</div>
-						{/if}
-						<div class="text-xs text-base-content/50">
-							Created: {effort.createdAt.toLocaleDateString()}
+							<button
+								class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content"
+								onclick={(e) => { e.stopPropagation(); openDeleteModal(effort); }}
+								aria-label="Delete effort"
+							>
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+								</svg>
+							</button>
 						</div>
 					</div>
 				</div>
 			{/each}
+		</div>
+	{/if}
+
+	<!-- Delete Confirmation Modal -->
+	{#if showDeleteModal && effortToDelete}
+		<div class="modal modal-open">
+			<div class="modal-box">
+				<h3 class="font-bold text-lg mb-4">Delete Savings Effort</h3>
+				<p class="mb-6">
+					Are you sure you want to delete "<strong>{effortToDelete.name}</strong>"?
+					This action cannot be undone and will also delete all associated savings entries.
+				</p>
+				<div class="modal-action">
+					<button type="button" class="btn" onclick={closeDeleteModal}>Cancel</button>
+					<button type="button" class="btn btn-error" onclick={deleteEffort}>Delete Effort</button>
+				</div>
+			</div>
 		</div>
 	{/if}
 
