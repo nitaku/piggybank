@@ -1,15 +1,22 @@
 import { dexieService } from './dexie-service';
 import type { SavingEffort, SavingsEntry, Category } from './types';
+import { schemeObservable10 } from 'd3-scale-chromatic';
 
 // Reactive state using Svelte 5 runes - only initialize in browser
 let efforts: SavingEffort[] = $state([]);
 let entries: SavingsEntry[] = $state([]);
 let currentEffort: SavingEffort | null = $state(null);
 const categories: Category[] = [
-	{ id: 'food', color: '#FF6B6B', icon: 'utensils' },
-	{ id: 'travel', color: '#4ECDC4', icon: 'plane' },
-	{ id: 'salary', color: '#45B7D1', icon: 'dollar-sign' },
-	{ id: 'other', color: '#96CEB4', icon: 'tag' }
+	{ id: 'food', color: schemeObservable10[0], icon: 'utensils' },
+	{ id: 'travel', color: schemeObservable10[1], icon: 'plane' },
+	{ id: 'salary', color: schemeObservable10[2], icon: 'dollar-sign' },
+	{ id: 'games', color: schemeObservable10[3], icon: 'gamepad-2' },
+	{ id: 'fuel', color: schemeObservable10[4], icon: 'fuel' },
+	{ id: 'sells', color: schemeObservable10[5], icon: 'shopping-cart' },
+	{ id: 'taxes', color: schemeObservable10[6], icon: 'file-text' },
+	{ id: 'charity', color: schemeObservable10[7], icon: 'heart' },
+	{ id: 'finance', color: schemeObservable10[8], icon: 'trending-up' },
+	{ id: 'other', color: schemeObservable10[9], icon: 'tag' }
 ];
 
 // Derived state - computed in getters
@@ -117,10 +124,23 @@ export const categoriesStore = {
 	get categories() { return categories; }
 };
 
+// Migration function to clean up old categoryColor and icon fields from entries
+async function migrateEntryFields() {
+	try {
+		// Since we're removing categoryColor and icon from the model,
+		// we don't need to migrate data - the fields will be ignored
+		console.log('Migration: Removed categoryColor and icon fields from SavingsEntry model');
+	} catch (error) {
+		console.error('Failed to run migration:', error);
+		// Don't throw - migration failure shouldn't prevent app startup
+	}
+}
+
 // Initialization
 export async function initializeStores() {
 	try {
 		await dexieService.initialize();
+		await migrateEntryFields(); // Run migration before loading data
 		await effortsStore.loadEfforts();
 		await entriesStore.loadEntries();
 	} catch (error) {

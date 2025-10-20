@@ -8,9 +8,9 @@ export class PiggyBankDB extends Dexie {
 
 	constructor() {
 		super('PiggyBankDB');
-		this.version(1).stores({
+		this.version(2).stores({
 			efforts: '++id, name, targetAmount, createdAt, updatedAt',
-			entries: '++id, effortId, amount, category, categoryColor, icon, description, createdAt',
+			entries: '++id, effortId, amount, category, description, createdAt',
 			categories: 'id, color, icon'
 		});
 	}

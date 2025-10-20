@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { effortsStore, entriesStore, categoriesStore } from '$lib/stores.svelte';
 	import type { SavingsEntry } from '$lib/types';
-	import { Utensils, Plane, DollarSign, Tag } from 'lucide-svelte';
+	import { Utensils, Plane, DollarSign, Tag, Gamepad2, Fuel, ShoppingCart, FileText, Heart, TrendingUp } from 'lucide-svelte';
 	import EffortProgress from './EffortProgress.svelte';
+	import { formatCurrency } from '$lib/currency';
 
 	let newEntryAmount = $state('');
 	let newEntryCategory = $state('');
@@ -40,15 +41,10 @@
 		if (!validateForm() || !effortsStore.currentEffort) return;
 
 		try {
-			const category = categoriesStore.categories.find(c => c.id === newEntryCategory);
-			if (!category) return;
-
 			const entry: Omit<SavingsEntry, 'id'> = {
 				effortId: effortsStore.currentEffort.id,
 				amount: parseFloat(newEntryAmount),
 				category: newEntryCategory,
-				categoryColor: category.color,
-				icon: category.icon,
 				description: newEntryDescription.trim() || undefined,
 				createdAt: new Date()
 			};
@@ -71,6 +67,12 @@
 			case 'utensils': return Utensils;
 			case 'plane': return Plane;
 			case 'dollar-sign': return DollarSign;
+			case 'gamepad-2': return Gamepad2;
+			case 'fuel': return Fuel;
+			case 'shopping-cart': return ShoppingCart;
+			case 'file-text': return FileText;
+			case 'heart': return Heart;
+			case 'trending-up': return TrendingUp;
 			case 'tag': return Tag;
 			default: return Tag;
 		}
@@ -177,8 +179,8 @@
 					<div class="card-body p-3">
 						<div class="flex justify-between items-start">
 							<div class="flex items-center gap-2">
-								<div class="flex items-center gap-1 badge" style="background-color: {entry.categoryColor}; color: white;">
-									<svelte:component this={getIconComponent(entry.icon)} class="w-3 h-3" />
+								<div class="flex items-center gap-1 badge" style="background-color: {categoriesStore.categories.find(c => c.id === entry.category)?.color || '#666'}; color: white;">
+									<svelte:component this={getIconComponent(categoriesStore.categories.find(c => c.id === entry.category)?.icon || 'tag')} class="w-3 h-3" />
 									<span class="capitalize">{entry.category}</span>
 								</div>
 								{#if entry.description}
@@ -186,13 +188,13 @@
 								{/if}
 							</div>
 							<div class="text-right">
-								<div class={`font-semibold ${entry.amount >= 0 ? 'text-success' : 'text-error'}`}>
-									{entry.amount >= 0 ? '+' : ''}${entry.amount.toLocaleString()}
+									<div class={`font-semibold ${entry.amount >= 0 ? 'text-success' : 'text-error'}`}>
+										{entry.amount >= 0 ? '+' : ''}{formatCurrency(entry.amount)}
+									</div>
+									<div class="text-xs text-base-content/50">
+										{entry.createdAt.toLocaleDateString()}
+									</div>
 								</div>
-								<div class="text-xs text-base-content/50">
-									{entry.createdAt.toLocaleDateString()}
-								</div>
-							</div>
 						</div>
 					</div>
 				</div>

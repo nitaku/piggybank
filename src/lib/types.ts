@@ -11,8 +11,6 @@ export interface SavingsEntry {
 	effortId: number;
 	amount: number;
 	category: string;
-	categoryColor: string;
-	icon: string;
 	description?: string;
 	createdAt: Date;
 }

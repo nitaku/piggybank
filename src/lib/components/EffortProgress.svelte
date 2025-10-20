@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { effortsStore, entriesStore } from '$lib/stores.svelte';
+	import { effortsStore, entriesStore, categoriesStore } from '$lib/stores.svelte';
+	import { formatCurrency } from '$lib/currency';
 
 	interface Props {
 		effortId: number;
@@ -28,7 +29,8 @@
 		// Calculate total savings per category
 		effortEntries.forEach(entry => {
 			if (!categoryTotals[entry.category]) {
-				categoryTotals[entry.category] = { amount: 0, color: entry.categoryColor };
+				const category = categoriesStore.categories.find(c => c.id === entry.category);
+				categoryTotals[entry.category] = { amount: 0, color: category?.color || '#666' };
 			}
 			categoryTotals[entry.category].amount += entry.amount;
 		});
@@ -51,9 +53,9 @@
 {#if showTotal}
 	<div class="flex justify-center items-center mb-2">
 		<span class="text-sm">
-			${getTotalSaved().toLocaleString()}
+			{formatCurrency(getTotalSaved())}
 			{#if effortsStore.efforts.find(e => e.id === effortId)?.targetAmount}
-				/ ${effortsStore.efforts.find(e => e.id === effortId)?.targetAmount.toLocaleString()}
+				/ {formatCurrency(effortsStore.efforts.find(e => e.id === effortId)?.targetAmount ?? 0)}
 			{/if}
 		</span>
 	</div>
@@ -63,7 +65,7 @@
 		<div
 			class="h-full"
 			style="flex: {categoryData.percentage}; background-color: {categoryData.color};"
-			title="{categoryData.category}: ${categoryData.amount.toLocaleString()} ({Math.round(categoryData.percentage)}%)"
+			title="{categoryData.category}: {formatCurrency(categoryData.amount)} ({Math.round(categoryData.percentage)}%)"
 		></div>
 	{/each}
 	{#if getTotalSaved() < (effortsStore.efforts.find(e => e.id === effortId)?.targetAmount || 0)}
@@ -83,7 +85,7 @@
 			<div class="flex items-center gap-1 text-xs">
 				<div class="w-2 h-2 rounded-full" style="background-color: {categoryData.color};"></div>
 				<span class="capitalize">{categoryData.category}</span>
-				<span class="text-base-content/70">${categoryData.amount.toLocaleString()}</span>
+				<span class="text-base-content/70">{formatCurrency(categoryData.amount)}</span>
 			</div>
 		{/each}
 	</div>

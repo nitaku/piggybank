@@ -12,6 +12,12 @@
 			// Could show a user-friendly error message here
 		}
 	});
+
+	$effect(() => {
+		if (effortsStore.currentEffort) {
+			window.scrollTo(0, 0);
+		}
+	});
 </script>
 
 <main class="container mx-auto p-4 max-w-md">
