@@ -78,9 +78,22 @@
 		}
 	};
 
+	const getContrastingColor = (hexColor: string): string => {
+		// Remove # if present
+		const color = hexColor.replace('#', '');
+		// Parse RGB
+		const r = parseInt(color.substr(0, 2), 16);
+		const g = parseInt(color.substr(2, 2), 16);
+		const b = parseInt(color.substr(4, 2), 16);
+		// Calculate luminance (perceived brightness)
+		const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+		// Return black for light colors, white for dark colors
+		return luminance > 0.5 ? '#000000' : '#ffffff';
+	};
+
 </script>
 
-<div class="space-y-4">
+<div class="space-y-6">
 	<div class="flex items-center gap-4">
 		<button class="btn btn-ghost btn-sm" onclick={goBack} aria-label="Go back to efforts list">
 			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,25 +101,25 @@
 			</svg>
 		</button>
 		<div>
-			<h1 class="text-2xl font-bold">{effortsStore.currentEffort?.name}</h1>
-			<div class="text-sm text-base-content/70">
+			<h1 class="text-3xl font-bold">{effortsStore.currentEffort?.name}</h1>
+			<div class="text-sm text-base-content/70 mt-1">
 				Created: {effortsStore.currentEffort?.createdAt.toLocaleDateString()}
 			</div>
 		</div>
 	</div>
 
 	<div class="card bg-base-100 shadow-md">
-		<div class="card-body p-4">
+		<div class="card-body p-6">
 			<EffortProgress effortId={effortsStore.currentEffort!.id} showTotal={true} />
 		</div>
 	</div>
 
 	<div class="card bg-base-100 shadow-md">
-		<div class="card-body p-4">
-			<h3 class="card-title text-lg mb-4">Add New Entry</h3>
-			<form onsubmit={addEntry} class="space-y-3">
+		<div class="card-body p-6">
+			<h3 class="card-title text-xl font-semibold mb-6">Add New Entry</h3>
+			<form onsubmit={addEntry} class="space-y-4">
 				<div class="form-control">
-					<label class="label" for="entry-amount">
+					<label class="label mb-2" for="entry-amount">
 						<span class="label-text">Amount</span>
 					</label>
 					{#if formErrors.amount}
@@ -118,28 +131,29 @@
 						step="0.01"
 						min="0.01"
 						placeholder="0.00"
-						class="input input-bordered {formErrors.amount ? 'input-error' : ''}"
+						class="input input-bordered w-full {formErrors.amount ? 'input-error' : ''}"
 						bind:value={newEntryAmount}
 						required
 					/>
 				</div>
 
 				<div class="form-control">
-					<label class="label" for="category-selection">
-						<span class="label-text">Category</span>
-						<span class="label-text-alt text-base-content/50">Select a category for this entry</span>
+					<label class="label mb-2" for="category-selection">
+						<span class="label-text-alt text-sm text-base-content/60">Select a category for this entry</span>
 					</label>
 					{#if formErrors.category}
 						<div class="text-error text-sm mb-1">{formErrors.category}</div>
 					{/if}
 					<div class="grid grid-cols-2 gap-2" id="category-selection">
 						{#each categoriesStore.categories as category (category.id)}
+							{@const isSelected = newEntryCategory === category.id}
+							{@const textColor = isSelected ? getContrastingColor(category.color) : category.color}
 							<button
 								type="button"
-								class="btn btn-outline btn-sm h-auto p-3 flex flex-col items-center gap-1 {newEntryCategory === category.id ? 'btn-primary' : ''}"
-								style="border-color: {category.color}; color: {newEntryCategory === category.id ? 'white' : category.color};"
+								class="btn btn-outline btn-sm h-auto p-3 flex flex-col items-center gap-1"
+								style="border-color: {category.color}; background-color: {isSelected ? category.color : 'transparent'}; color: {textColor};"
 								onclick={() => newEntryCategory = category.id}
-								aria-pressed={newEntryCategory === category.id}
+								aria-pressed={isSelected}
 								aria-label="Select {category.id} category"
 							>
 								<svelte:component this={getIconComponent(category.icon)} class="w-5 h-5" />
@@ -150,14 +164,14 @@
 				</div>
 
 				<div class="form-control">
-					<label class="label" for="entry-description">
+					<label class="label mb-2" for="entry-description">
 						<span class="label-text">Description (optional)</span>
 					</label>
 					<textarea
 						id="entry-description"
 						placeholder="Add a note about this entry..."
-						class="textarea textarea-bordered resize-none"
-						rows="2"
+						class="textarea textarea-bordered resize-none w-full"
+						rows="3"
 						bind:value={newEntryDescription}
 					></textarea>
 				</div>
@@ -167,8 +181,8 @@
 		</div>
 	</div>
 
-	<div class="space-y-2">
-		<h3 class="text-lg font-semibold">Entries</h3>
+	<div class="space-y-3">
+		<h3 class="text-xl font-semibold mb-4">Entries</h3>
 		{#if entriesStore.filteredEntries.length === 0}
 			<div class="text-center py-8 text-base-content/50">
 				No entries yet. Add your first savings entry above.
@@ -176,7 +190,7 @@
 		{:else}
 			{#each entriesStore.sortedFilteredEntries as entry (entry.id)}
 				<div class="card bg-base-100 shadow-sm">
-					<div class="card-body p-3">
+					<div class="card-body p-4">
 						<div class="flex justify-between items-start">
 							<div class="flex items-center gap-2">
 								<div class="flex items-center gap-1 badge" style="background-color: {categoriesStore.categories.find(c => c.id === entry.category)?.color || '#666'}; color: white;">
