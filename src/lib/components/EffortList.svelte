@@ -114,11 +114,8 @@
 			{#each effortsStore.sortedEfforts as effort (effort.id)}
 				<div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick={() => selectEffort(effort)} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectEffort(effort); } }}>
 					<div class="card-body p-4">
-						<div class="flex justify-between items-start">
-							<div class="flex-1">
-								<h3 class="card-title text-lg">{effort.name}</h3>
-								<EffortProgress effortId={effort.id} showTotal={true} />
-							</div>
+						<div class="flex justify-between items-center mb-4">
+							<h3 class="card-title text-lg">{effort.name}</h3>
 							<button
 								class="btn btn-ghost btn-sm text-error hover:bg-error hover:text-error-content"
 								onclick={(e) => { e.stopPropagation(); openDeleteModal(effort); }}
@@ -129,6 +126,7 @@
 								</svg>
 							</button>
 						</div>
+						<EffortProgress effortId={effort.id} showTotal={true} />
 					</div>
 				</div>
 			{/each}
