@@ -41,6 +41,7 @@
 		"vitest": "^3.2.4"
 	},
 	"dependencies": {
+		"@vite-pwa/sveltekit": "^1.0.1",
 		"d3-scale-chromatic": "^3.1.0",
 		"daisyui": "^5.3.7",
 		"dexie": "^4.2.1",
