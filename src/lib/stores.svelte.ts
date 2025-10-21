@@ -136,6 +136,56 @@ async function migrateEntryFields() {
 	}
 }
 
+// Service Worker debugging
+function debugServiceWorker() {
+	if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+		console.log('Service Worker Debug: Checking registration...');
+
+		navigator.serviceWorker.getRegistrations().then(registrations => {
+			console.log('Service Worker Debug: Found registrations:', registrations.length);
+			registrations.forEach(reg => {
+				console.log('Service Worker Debug: Registration:', {
+					scope: reg.scope,
+					active: !!reg.active,
+					installing: !!reg.installing,
+					waiting: !!reg.waiting,
+					state: reg.active?.state
+				});
+			});
+		}).catch(err => console.error('Service Worker Debug: Error getting registrations:', err));
+
+		navigator.serviceWorker.ready.then(reg => {
+			console.log('Service Worker Debug: Ready registration:', {
+				scope: reg.scope,
+				active: !!reg.active,
+				state: reg.active?.state
+			});
+
+			// Check caches
+			if ('caches' in window) {
+				caches.keys().then(cacheNames => {
+					console.log('Service Worker Debug: Cache names:', cacheNames);
+					cacheNames.forEach(name => {
+						caches.open(name).then(cache => {
+							cache.keys().then(requests => {
+								console.log(`Service Worker Debug: Cache "${name}" has ${requests.length} entries`);
+								requests.slice(0, 5).forEach(req => {
+									console.log(`  - ${req.url}`);
+								});
+								if (requests.length > 5) {
+									console.log(`  ... and ${requests.length - 5} more`);
+								}
+							});
+						});
+					});
+				}).catch(err => console.error('Service Worker Debug: Error checking caches:', err));
+			}
+		}).catch(err => console.error('Service Worker Debug: Error waiting for ready:', err));
+	} else {
+		console.log('Service Worker Debug: Service Worker not supported or not in browser');
+	}
+}
+
 // Initialization
 export async function initializeStores() {
 	try {
@@ -143,6 +193,9 @@ export async function initializeStores() {
 		await migrateEntryFields(); // Run migration before loading data
 		await effortsStore.loadEfforts();
 		await entriesStore.loadEntries();
+
+		// Debug service worker after initialization
+		debugServiceWorker();
 	} catch (error) {
 		console.error('Failed to initialize stores:', error);
 		throw error;

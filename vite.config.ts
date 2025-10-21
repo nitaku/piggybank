@@ -8,7 +8,7 @@ export default defineConfig({
 		tailwindcss(),
 		sveltekit(),
 		SvelteKitPWA({
-			registerType: 'autoUpdate',
+			strategies: 'generateSW',
 			manifest: {
 				name: 'PiggyBank',
 				short_name: 'PiggyBank',
@@ -21,13 +21,42 @@ export default defineConfig({
 						src: '/favicon.svg',
 						sizes: 'any',
 						type: 'image/svg+xml'
+					},
+					{
+						src: '/icon-192.png',
+						sizes: '192x192',
+						type: 'image/png'
+					},
+					{
+						src: '/icon-512.png',
+						sizes: '512x512',
+						type: 'image/png'
 					}
 				]
 			},
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-				navigateFallback: '/index.html',
-				navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/]
+				additionalManifestEntries: [
+					{ url: '/', revision: null }
+				],
+				navigateFallback: '/',
+				navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
+				skipWaiting: true,
+				clientsClaim: true,
+				runtimeCaching: [
+					{
+						urlPattern: ({ request }) => request.mode === 'navigate',
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'pages',
+							plugins: [
+								{
+									cacheKeyWillBeUsed: async ({ request }) => '/'
+								}
+							]
+						}
+					}
+				]
 			}
 		})
 	]
